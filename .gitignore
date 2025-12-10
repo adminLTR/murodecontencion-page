@@ -1,0 +1,41 @@
+# Credenciales y configuración sensible
+# js/config.js
+# NOTA: js/config.example.js SÍ debe estar en git como referencia
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores e IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Dependencias (si usas Node.js más adelante)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos de entorno
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build y distribución
+dist/
+build/
+
+# Archivos temporales
+*.tmp
+*.temp

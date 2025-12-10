@@ -18,6 +18,16 @@ const MuroDeContencion = {
         this.setupSmoothScroll();
         this.setupHeaderScroll();
         this.setupLazyLoading();
+        
+        // Cargar posts de X si la configuración está disponible
+        if (typeof X_API_CONFIG !== 'undefined' && 
+            X_API_CONFIG.bearerToken !== 'TU_BEARER_TOKEN_AQUI' &&
+            X_API_CONFIG.userId !== 'TU_USER_ID_AQUI') {
+            this.fetchTwitterPosts();
+        } else {
+            console.warn('⚠️ Configura tu Bearer Token y User ID en js/config.js para ver posts reales de X');
+            this.showTwitterConfigMessage();
+        }
     },
 
     // Observador de intersección para animaciones al hacer scroll
@@ -105,35 +115,179 @@ const MuroDeContencion = {
     // Funciones para API de Twitter/X
     // ============================================
     async fetchTwitterPosts() {
-        // TODO: Implementar llamada a API de X/Twitter
-        console.log('🐦 Preparado para cargar posts de X');
+        console.log('🐦 Cargando posts de X...');
         
-        /*
-        Ejemplo de estructura esperada:
         try {
-            const response = await fetch('TU_ENDPOINT_DE_API');
+            // Construir URL con parámetros
+            const params = new URLSearchParams({
+                'max_results': X_API_CONFIG.maxResults,
+                'tweet.fields': X_API_CONFIG.tweetFields.join(','),
+                'user.fields': X_API_CONFIG.userFields.join(','),
+                'expansions': X_API_CONFIG.expansions.join(',')
+            });
+
+            const url = `${X_API_CONFIG.apiBaseUrl}/users/${X_API_CONFIG.userId}/tweets?${params}`;
+
+            // Realizar petición a la API de X
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${X_API_CONFIG.bearerToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+            }
+
             const data = await response.json();
+            
+            // Verificar si hay datos
+            if (!data.data || data.data.length === 0) {
+                console.warn('⚠️ No se encontraron posts');
+                this.showTwitterMessage('No se encontraron posts recientes');
+                return;
+            }
+
+            // Renderizar posts
             this.renderTwitterPosts(data);
+            console.log('✅ Posts de X cargados exitosamente');
+
         } catch (error) {
-            console.error('Error al cargar posts de X:', error);
+            console.error('❌ Error al cargar posts de X:', error);
+            this.showTwitterError(error.message);
         }
-        */
     },
 
-    renderTwitterPosts(posts) {
+    renderTwitterPosts(apiData) {
         const container = document.querySelector('.twitter-feed .feed-content');
         if (!container) return;
 
-        // TODO: Implementar renderizado de posts reales
-        // container.innerHTML = posts.map(post => this.createPostCard(post)).join('');
+        // Obtener información del usuario desde includes
+        const users = apiData.includes?.users || [];
+        const userMap = new Map(users.map(user => [user.id, user]));
+
+        // Generar HTML para cada post
+        const postsHTML = apiData.data.map(post => {
+            const author = userMap.get(post.author_id);
+            return this.createPostCard(post, author);
+        }).join('');
+
+        // Actualizar contenedor con animación
+        container.style.opacity = '0';
+        setTimeout(() => {
+            container.innerHTML = postsHTML;
+            container.style.opacity = '1';
+        }, 200);
     },
 
-    createPostCard(post) {
-        // TODO: Crear estructura HTML para cada post
+    createPostCard(post, author) {
+        const metrics = post.public_metrics || { 
+            like_count: 0, 
+            reply_count: 0, 
+            retweet_count: 0 
+        };
+
+        const profileImage = author?.profile_image_url || '';
+        const username = author?.username || 'usuario';
+        const name = author?.name || username;
+        const timeAgo = this.formatDate(post.created_at);
+        const postUrl = `https://x.com/${username}/status/${post.id}`;
+
         return `
-            <article class="post-card">
-                <!-- Contenido del post -->
+            <article class="post-card" data-post-id="${post.id}">
+                <div class="post-header">
+                    <div class="post-avatar" style="background-image: url('${profileImage}')"></div>
+                    <div class="post-meta">
+                        <h3><a href="https://x.com/${username}" target="_blank" rel="noopener">@${username}</a></h3>
+                        <span class="post-time">${timeAgo}</span>
+                    </div>
+                </div>
+                <p class="post-text">${this.formatTweetText(post.text)}</p>
+                <div class="post-actions">
+                    <span title="Me gusta"><i class="far fa-heart"></i> ${this.formatNumber(metrics.like_count)}</span>
+                    <span title="Respuestas"><i class="far fa-comment"></i> ${this.formatNumber(metrics.reply_count)}</span>
+                    <span title="Retweets"><i class="fas fa-retweet"></i> ${this.formatNumber(metrics.retweet_count)}</span>
+                </div>
+                <a href="${postUrl}" target="_blank" rel="noopener" class="post-link-overlay" aria-label="Ver post en X"></a>
             </article>
+        `;
+    },
+
+    formatTweetText(text) {
+        // Escapar HTML
+        const escapeHtml = (str) => {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        };
+
+        let formattedText = escapeHtml(text);
+
+        // Convertir URLs en links (simple)
+        formattedText = formattedText.replace(
+            /https?:\/\/[^\s]+/g,
+            match => `<a href="${match}" target="_blank" rel="noopener">${match}</a>`
+        );
+
+        // Convertir mentions en links
+        formattedText = formattedText.replace(
+            /@(\w+)/g,
+            '<a href="https://x.com/$1" target="_blank" rel="noopener">@$1</a>'
+        );
+
+        // Convertir hashtags en links
+        formattedText = formattedText.replace(
+            /#(\w+)/g,
+            '<a href="https://x.com/hashtag/$1" target="_blank" rel="noopener">#$1</a>'
+        );
+
+        return formattedText;
+    },
+
+    showTwitterError(errorMessage) {
+        const container = document.querySelector('.twitter-feed .feed-content');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="api-message error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Error al cargar posts</h3>
+                <p>${errorMessage}</p>
+                <p class="small">Revisa la consola para más detalles.</p>
+            </div>
+        `;
+    },
+
+    showTwitterMessage(message) {
+        const container = document.querySelector('.twitter-feed .feed-content');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="api-message info">
+                <i class="fas fa-info-circle"></i>
+                <p>${message}</p>
+            </div>
+        `;
+    },
+
+    showTwitterConfigMessage() {
+        const container = document.querySelector('.twitter-feed .feed-content');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="api-message config">
+                <i class="fas fa-cog"></i>
+                <h3>Configuración necesaria</h3>
+                <p>Para ver tus posts reales de X, configura tu Bearer Token y User ID en <code>js/config.js</code></p>
+                <ol>
+                    <li>Ve a <a href="https://developer.x.com/en/portal/dashboard" target="_blank">X Developer Portal</a></li>
+                    <li>Obtén tu Bearer Token</li>
+                    <li>Obtén tu User ID</li>
+                    <li>Actualiza <code>js/config.js</code></li>
+                </ol>
+            </div>
         `;
     },
 

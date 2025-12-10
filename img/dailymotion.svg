@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" width="200" height="40" aria-hidden="true" role="img">
-  <title>Dailymotion logo</title>
-  <rect x="0" y="0" width="40" height="40" rx="6" ry="6" fill="#0066ff" />
-  <polygon points="14,10 30,20 14,30" fill="#ffffff" />
-  <text x="52" y="27" font-family="Segoe UI, Roboto, Arial, sans-serif" font-size="16" fill="#262626">Dailymotion</text>
-</svg>
