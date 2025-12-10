@@ -1,6 +1,6 @@
 # Credenciales y configuración sensible
-js/config.js
-# NOTA: js/config.example.js SÍ debe estar en git como referencia
+server/.env
+# NOTA: server/.env.example SÍ debe estar en git como referencia
 
 # Archivos del sistema operativo
 .DS_Store
@@ -39,3 +39,6 @@ build/
 # Archivos temporales
 *.tmp
 *.temp
+
+# Caché del servidor
+server/.cache/

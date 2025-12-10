@@ -19,13 +19,17 @@ const MuroDeContencion = {
         this.setupHeaderScroll();
         this.setupLazyLoading();
         
-        // Cargar posts de X si la configuración está disponible
-        if (typeof X_API_CONFIG !== 'undefined' && 
-            X_API_CONFIG.bearerToken !== 'TU_BEARER_TOKEN_AQUI' &&
-            X_API_CONFIG.userId !== 'TU_USER_ID_AQUI') {
-            this.fetchTwitterPosts();
+        // Cargar posts de X
+        if (typeof X_API_CONFIG !== 'undefined') {
+            if (X_API_CONFIG.useProxy) {
+                console.log('✅ Usando backend proxy para obtener posts de X');
+                this.fetchTwitterPosts();
+            } else {
+                console.warn('⚠️ Backend proxy desactivado - pueden ocurrir errores de CORS');
+                this.showTwitterConfigMessage();
+            }
         } else {
-            console.warn('⚠️ Configura tu Bearer Token y User ID en js/config.js para ver posts reales de X');
+            console.error('❌ X_API_CONFIG no está definido');
             this.showTwitterConfigMessage();
         }
     },
@@ -35,7 +39,7 @@ const MuroDeContencion = {
         const observerOptions = {
             threshold: 0.1,
             rootMargin: '0px 0px -50px 0px'
-        };
+        }; 
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -114,53 +118,145 @@ const MuroDeContencion = {
     // ============================================
     // Funciones para API de Twitter/X
     // ============================================
+    
+    // LocalStorage keys
+    STORAGE_KEY: 'murodecontencion_tweets',
+    STORAGE_TIMESTAMP_KEY: 'murodecontencion_tweets_timestamp',
+
+    // Guardar tweets en LocalStorage
+    saveTweetsToStorage(data) {
+        try {
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+            localStorage.setItem(this.STORAGE_TIMESTAMP_KEY, Date.now().toString());
+            console.log('💾 Tweets guardados en LocalStorage');
+        } catch (error) {
+            console.warn('⚠️ No se pudo guardar en LocalStorage:', error);
+        }
+    },
+
+    // Obtener tweets de LocalStorage
+    getTweetsFromStorage() {
+        try {
+            const data = localStorage.getItem(this.STORAGE_KEY);
+            const timestamp = localStorage.getItem(this.STORAGE_TIMESTAMP_KEY);
+            
+            if (data && timestamp) {
+                const savedTime = new Date(parseInt(timestamp));
+                console.log(`📦 Tweets encontrados en LocalStorage (guardados: ${savedTime.toLocaleString()})`);
+                return JSON.parse(data);
+            }
+            return null;
+        } catch (error) {
+            console.warn('⚠️ Error al leer LocalStorage:', error);
+            return null;
+        }
+    },
+
+    // Limpiar tweets de LocalStorage
+    clearTweetsFromStorage() {
+        try {
+            localStorage.removeItem(this.STORAGE_KEY);
+            localStorage.removeItem(this.STORAGE_TIMESTAMP_KEY);
+            console.log('🗑️ LocalStorage limpiado');
+        } catch (error) {
+            console.warn('⚠️ Error al limpiar LocalStorage:', error);
+        }
+    },
+
     async fetchTwitterPosts() {
         console.log('🐦 Cargando posts de X...');
         
         try {
-            // Construir URL con parámetros
-            const params = new URLSearchParams({
-                'max_results': X_API_CONFIG.maxResults,
-                'tweet.fields': X_API_CONFIG.tweetFields.join(','),
-                'user.fields': X_API_CONFIG.userFields.join(','),
-                'expansions': X_API_CONFIG.expansions.join(',')
-            });
+            // Usar backend proxy si está configurado
+            let url, fetchOptions;
+            
+            if (X_API_CONFIG.useProxy) {
+                // Petición al backend proxy (sin credenciales en el frontend)
+                const params = new URLSearchParams({
+                    'max_results': X_API_CONFIG.maxResults
+                });
+                
+                url = `${X_API_CONFIG.proxyBaseUrl}/api/tweets?${params}`;
+                fetchOptions = {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+                
+                console.log('📡 Usando backend proxy:', url);
+            } else {
+                // Petición directa a la API de X (solo para desarrollo, causa CORS)
+                console.warn('⚠️ Petición directa a API de X - puede causar errores de CORS');
+                const params = new URLSearchParams({
+                    'max_results': X_API_CONFIG.maxResults,
+                    'tweet.fields': 'id,text,created_at,public_metrics,author_id',
+                    'user.fields': 'id,name,username,profile_image_url',
+                    'expansions': 'author_id'
+                });
+                
+                url = `https://api.x.com/2/users/${X_API_CONFIG.userId}/tweets?${params}`;
+                fetchOptions = {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${X_API_CONFIG.bearerToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                };
+            }
 
-            const url = `${X_API_CONFIG.apiBaseUrl}/users/${X_API_CONFIG.userId}/tweets?${params}`;
-
-            // Realizar petición a la API de X
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${X_API_CONFIG.bearerToken}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            // Realizar petición
+            const response = await fetch(url, fetchOptions);
 
             if (!response.ok) {
-                throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `Error HTTP: ${response.status} - ${response.statusText}`);
             }
 
             const data = await response.json();
             
             // Verificar si hay datos
             if (!data.data || data.data.length === 0) {
-                console.warn('⚠️ No se encontraron posts');
-                this.showTwitterMessage('No se encontraron posts recientes');
+                console.warn('⚠️ No se encontraron posts en la API');
+                
+                // Intentar cargar desde LocalStorage
+                const cachedData = this.getTweetsFromStorage();
+                if (cachedData) {
+                    console.log('📦 Mostrando tweets desde LocalStorage');
+                    this.renderTwitterPosts(cachedData, true);
+                    return;
+                }
+                
+                // Si no hay nada en LocalStorage, mostrar mensaje
+                this.showNoTweetsMessage();
                 return;
             }
 
+            // Guardar en LocalStorage
+            this.saveTweetsToStorage(data);
+
             // Renderizar posts
-            this.renderTwitterPosts(data);
-            console.log('✅ Posts de X cargados exitosamente');
+            this.renderTwitterPosts(data, false);
+            console.log('✅ Posts de X cargados exitosamente desde la API');
 
         } catch (error) {
             console.error('❌ Error al cargar posts de X:', error);
-            this.showTwitterError(error.message);
+            
+            // Intentar cargar desde LocalStorage como fallback
+            const cachedData = this.getTweetsFromStorage();
+            if (cachedData) {
+                console.log('📦 API falló. Mostrando tweets desde LocalStorage');
+                this.renderTwitterPosts(cachedData, true);
+                this.showStorageWarning();
+            } else {
+                // No hay datos en LocalStorage, mostrar mensaje
+                console.log('❌ No hay tweets en LocalStorage');
+                this.showNoTweetsMessage();
+            }
         }
     },
 
-    renderTwitterPosts(apiData) {
+    renderTwitterPosts(apiData, fromStorage = false) {
         const container = document.querySelector('.twitter-feed .feed-content');
         if (!container) return;
 
@@ -174,10 +270,23 @@ const MuroDeContencion = {
             return this.createPostCard(post, author);
         }).join('');
 
+        // Agregar badge si viene de LocalStorage
+        let storageNotice = '';
+        if (fromStorage) {
+            const timestamp = localStorage.getItem(this.STORAGE_TIMESTAMP_KEY);
+            const savedDate = timestamp ? new Date(parseInt(timestamp)) : new Date();
+            storageNotice = `
+                <div class="storage-notice">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Mostrando tweets guardados (última actualización: ${this.formatDate(savedDate.toISOString())})</span>
+                </div>
+            `;
+        }
+
         // Actualizar contenedor con animación
         container.style.opacity = '0';
         setTimeout(() => {
-            container.innerHTML = postsHTML;
+            container.innerHTML = storageNotice + postsHTML;
             container.style.opacity = '1';
         }, 200);
     },
@@ -246,18 +355,30 @@ const MuroDeContencion = {
         return formattedText;
     },
 
-    showTwitterError(errorMessage) {
+    showNoTweetsMessage() {
         const container = document.querySelector('.twitter-feed .feed-content');
         if (!container) return;
 
         container.innerHTML = `
-            <div class="api-message error">
-                <i class="fas fa-exclamation-triangle"></i>
-                <h3>Error al cargar posts</h3>
-                <p>${errorMessage}</p>
-                <p class="small">Revisa la consola para más detalles.</p>
+            <div class="api-message no-content">
+                <i class="fas fa-inbox"></i>
+                <h3>No hay tweets para mostrar</h3>
             </div>
         `;
+    },
+
+    showStorageWarning() {
+        const container = document.querySelector('.twitter-feed .feed-content');
+        if (!container) return;
+
+        // Agregar un pequeño banner al inicio del contenedor
+        const warning = document.createElement('div');
+        warning.className = 'storage-warning';
+        warning.innerHTML = `
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>La API no está disponible. Mostrando tweets guardados anteriormente.</span>
+        `;
+        container.insertBefore(warning, container.firstChild);
     },
 
     showTwitterMessage(message) {
@@ -278,15 +399,17 @@ const MuroDeContencion = {
 
         container.innerHTML = `
             <div class="api-message config">
-                <i class="fas fa-cog"></i>
-                <h3>Configuración necesaria</h3>
-                <p>Para ver tus posts reales de X, configura tu Bearer Token y User ID en <code>js/config.js</code></p>
+                <i class="fas fa-server"></i>
+                <h3>Servidor Backend Requerido</h3>
+                <p>Para ver los posts de X, necesitas iniciar el servidor backend:</p>
                 <ol>
-                    <li>Ve a <a href="https://developer.x.com/en/portal/dashboard" target="_blank">X Developer Portal</a></li>
-                    <li>Obtén tu Bearer Token</li>
-                    <li>Obtén tu User ID</li>
-                    <li>Actualiza <code>js/config.js</code></li>
+                    <li>Abre una terminal en la carpeta <code>server/</code></li>
+                    <li>Ejecuta: <code>npm install</code></li>
+                    <li>Configura el archivo <code>server/.env</code> con tus credenciales</li>
+                    <li>Ejecuta: <code>npm start</code></li>
+                    <li>Recarga esta página</li>
                 </ol>
+                <p class="small">El servidor proxy evita problemas de CORS y mantiene tus credenciales seguras.</p>
             </div>
         `;
     },

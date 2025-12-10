@@ -440,6 +440,111 @@ body {
     transition: opacity var(--transition-normal);
 }
 
+/* Storage notices and warnings */
+.storage-notice {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    border-left: 4px solid #2196f3;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.9rem;
+    color: #1565c0;
+    animation: slideIn 0.5s ease-out;
+}
+
+.storage-notice i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.storage-warning {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border-left: 4px solid #ff9800;
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--spacing-md);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.9rem;
+    color: #e65100;
+    animation: slideIn 0.5s ease-out;
+}
+
+.storage-warning i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* No content message */
+.api-message.no-content {
+    background: var(--light-grey);
+    border: 2px solid var(--stabilitx);
+}
+
+.api-message.no-content i {
+    color: var(--medium-gray);
+}
+
+.api-message.no-content h3 {
+    color: var(--dark-gray);
+    margin-bottom: var(--spacing-sm);
+}
+
+.api-message.no-content p {
+    color: var(--medium-gray);
+}
+
+/* Reload button */
+.reload-btn {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: linear-gradient(135deg, var(--dark-gray), var(--accent-gray));
+    color: var(--white);
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    box-shadow: var(--shadow-sm);
+}
+
+.reload-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    background: linear-gradient(135deg, var(--accent-gray), var(--dark-gray));
+}
+
+.reload-btn:active {
+    transform: translateY(0);
+}
+
+.reload-btn i {
+    transition: transform var(--transition-normal);
+}
+
+.reload-btn:hover i {
+    transform: rotate(180deg);
+}
+
 /* Video Cards */
 .video-card {
     display: flex;
