@@ -21,14 +21,18 @@ const app = express();
 const PORT = process.env.PORT || 3000;
   
 // ============================================
-// Sistema de Caché Persistente
+// Sistema de Caché Persistente para X/Twitter
 // ============================================
 const CACHE_TTL_MINUTES = parseInt(process.env.CACHE_TTL_MINUTES) || 30;
 const CACHE_FILE_PATH = path.join(__dirname, '.cache', 'tweets.json');
 
+// Sistema de Caché Persistente para YouTube
+const YOUTUBE_CACHE_TTL_MINUTES = parseInt(process.env.YOUTUBE_CACHE_TTL_MINUTES) || 30;
+const YOUTUBE_CACHE_FILE_PATH = path.join(__dirname, '.cache', 'youtube.json');
+
 // Crear directorio de caché si no existe
 const ensureCacheDir = () => {
-    const cacheDir = path.dirname(CACHE_FILE_PATH);
+    const cacheDir = path.join(__dirname, '.cache');
     if (!fs.existsSync(cacheDir)) {
         fs.mkdirSync(cacheDir, { recursive: true });
     }
@@ -99,6 +103,75 @@ const getCache = () => {
         const remaining = Math.floor((cache.ttl - (Date.now() - cache.timestamp)) / 1000);
         console.log(`✅ Usando datos en cache (expira en ${remaining}s)`);
         return cache.data;
+    }
+    return null;
+};
+
+// ============================================
+// Sistema de Caché para YouTube
+// ============================================
+const youtubeCache = {
+    data: null,
+    timestamp: null,
+    ttl: YOUTUBE_CACHE_TTL_MINUTES * 60 * 1000
+};
+
+const loadYoutubeCacheFromFile = () => {
+    try {
+        ensureCacheDir();
+        if (fs.existsSync(YOUTUBE_CACHE_FILE_PATH)) {
+            const fileContent = fs.readFileSync(YOUTUBE_CACHE_FILE_PATH, 'utf-8');
+            const savedCache = JSON.parse(fileContent);
+            youtubeCache.data = savedCache.data;
+            youtubeCache.timestamp = savedCache.timestamp;
+            
+            if (isYoutubeCacheValid()) {
+                const remaining = Math.floor((youtubeCache.ttl - (Date.now() - youtubeCache.timestamp)) / 1000);
+                console.log(`📦 Caché de YouTube cargado desde archivo (expira en ${remaining}s)`);
+                return true;
+            } else {
+                console.log(`⏰ Caché de YouTube en archivo expirado`);
+            }
+        }
+    } catch (error) {
+        console.warn('⚠️ No se pudo cargar caché de YouTube desde archivo:', error.message);
+    }
+    return false;
+};
+
+const saveYoutubeCacheToFile = () => {
+    try {
+        ensureCacheDir();
+        const cacheData = {
+            data: youtubeCache.data,
+            timestamp: youtubeCache.timestamp
+        };
+        fs.writeFileSync(YOUTUBE_CACHE_FILE_PATH, JSON.stringify(cacheData, null, 2));
+        console.log(`💾 Caché de YouTube guardado en archivo`);
+    } catch (error) {
+        console.warn('⚠️ No se pudo guardar caché de YouTube en archivo:', error.message);
+    }
+};
+
+const isYoutubeCacheValid = () => {
+    if (!youtubeCache.data || !youtubeCache.timestamp) return false;
+    const now = Date.now();
+    return (now - youtubeCache.timestamp) < youtubeCache.ttl;
+};
+
+const setYoutubeCache = (data) => {
+    youtubeCache.data = data;
+    youtubeCache.timestamp = Date.now();
+    const expiresIn = Math.floor(youtubeCache.ttl / 1000);
+    console.log(`💾 Caché de YouTube actualizado. Válido por ${expiresIn} segundos`);
+    saveYoutubeCacheToFile();
+};
+
+const getYoutubeCache = () => {
+    if (isYoutubeCacheValid()) {
+        const remaining = Math.floor((youtubeCache.ttl - (Date.now() - youtubeCache.timestamp)) / 1000);
+        console.log(`✅ Usando datos de YouTube en caché (expira en ${remaining}s)`);
+        return youtubeCache.data;
     }
     return null;
 };
@@ -278,6 +351,139 @@ app.get('/api/tweets', async (req, res) => {
 });
 
 // ============================================
+// Endpoint: Obtener videos de YouTube
+// ============================================
+app.get('/api/youtube/videos', async (req, res) => {
+    try {
+        // Validar configuración de YouTube
+        if (!process.env.YOUTUBE_API_KEY || process.env.YOUTUBE_API_KEY === 'TU_API_KEY_AQUI' || !process.env.YOUTUBE_API_KEY.trim()) {
+            return res.status(500).json({
+                error: 'Configuración incompleta',
+                message: 'YouTube API Key no configurada. Sigue las instrucciones en YOUTUBE_API_SETUP.md'
+            });
+        }
+
+        if (!process.env.YOUTUBE_CHANNEL_ID || process.env.YOUTUBE_CHANNEL_ID === 'TU_CHANNEL_ID_AQUI' || !process.env.YOUTUBE_CHANNEL_ID.trim()) {
+            return res.status(500).json({
+                error: 'Configuración incompleta',
+                message: 'YouTube Channel ID no configurado. Sigue las instrucciones en YOUTUBE_API_SETUP.md'
+            });
+        }
+
+        // Verificar caché válido
+        const cachedData = getYoutubeCache();
+        if (cachedData) {
+            return res.json({
+                ...cachedData,
+                _cached: true,
+                _cache_expires_in: Math.floor((youtubeCache.ttl - (Date.now() - youtubeCache.timestamp)) / 1000)
+            });
+        }
+
+        // Parámetros de la petición
+        const maxResults = req.query.max_results || 3;
+        
+        // Construir URL de la API de YouTube
+        const params = new URLSearchParams({
+            'part': 'snippet',
+            'channelId': process.env.YOUTUBE_CHANNEL_ID,
+            'order': 'date',
+            'type': 'video',
+            'maxResults': maxResults,
+            'key': process.env.YOUTUBE_API_KEY
+        });
+
+        const url = `https://www.googleapis.com/youtube/v3/search?${params}`;
+
+        console.log('📺 Solicitando videos de YouTube...');
+        console.log(`🔍 Channel ID: ${process.env.YOUTUBE_CHANNEL_ID}`);
+
+        // Realizar petición a la API de YouTube
+        const response = await fetch(url, {
+            method: 'GET'
+        });
+
+        // Manejar respuesta
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('❌ Error de la API de YouTube:', response.status, errorData);
+            
+            // Si hay error 403 (quota exceeded) y tenemos caché antiguo, usarlo
+            if (response.status === 403) {
+                if (!youtubeCache.data) {
+                    loadYoutubeCacheFromFile();
+                }
+                
+                if (youtubeCache.data) {
+                    console.log('⚠️ Quota de YouTube excedida. Usando caché antiguo...');
+                    const cacheAge = Math.floor((Date.now() - youtubeCache.timestamp) / 1000 / 60);
+                    console.log(`   Caché de hace ${cacheAge} minutos`);
+                    return res.json({
+                        ...youtubeCache.data,
+                        _cached: true,
+                        _cache_expired: !isYoutubeCacheValid(),
+                        _cache_age_minutes: cacheAge,
+                        _warning: 'Quota excedida. Mostrando datos anteriores.'
+                    });
+                }
+            }
+            
+            return res.status(response.status).json({
+                error: 'Error al obtener videos de YouTube',
+                status: response.status,
+                message: errorData.error?.message || response.statusText,
+                details: errorData,
+                hint: response.status === 403 
+                    ? 'Has excedido la quota de YouTube API (10,000 units/día). La quota se resetea a medianoche PST.'
+                    : null
+            });
+        }
+
+        const data = await response.json();
+        
+        // Verificar si hay datos
+        if (!data.items || data.items.length === 0) {
+            console.log('⚠️ No se encontraron videos');
+            return res.json({
+                items: [],
+                message: 'No se encontraron videos recientes en el canal'
+            });
+        }
+
+        console.log(`✅ ${data.items.length} videos obtenidos exitosamente`);
+        console.log(`📊 Quota usada: 100 units (búsqueda)`);
+        
+        // Guardar en caché
+        setYoutubeCache(data);
+        
+        // Devolver datos al frontend
+        res.json({
+            ...data,
+            _cached: false
+        });
+
+    } catch (error) {
+        console.error('❌ Error en el servidor (YouTube):', error);
+        
+        // Si hay error de red y tenemos caché, usarlo
+        if (youtubeCache.data) {
+            console.log('⚠️ Error de red. Usando caché de YouTube antiguo...');
+            return res.json({
+                ...youtubeCache.data,
+                _cached: true,
+                _cache_expired: true,
+                _warning: 'Error de red. Mostrando datos anteriores.'
+            });
+        }
+        
+        res.status(500).json({
+            error: 'Error interno del servidor',
+            message: error.message
+        });
+    }
+});
+
+// ============================================
 // Endpoint: Health check
 // ============================================
 app.get('/api/health', (req, res) => {
@@ -315,6 +521,7 @@ app.get('/', (req, res) => {
         version: '1.0.0',
         endpoints: {
             tweets: '/api/tweets',
+            youtube: '/api/youtube/videos',
             health: '/api/health'
         }
     });
@@ -326,37 +533,67 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
     console.log('');
     console.log('🚀 ========================================');
-    console.log('🚀 Servidor Proxy de API de X iniciado');
+    console.log('🚀 Servidor Proxy de APIs iniciado');
     console.log('🚀 ========================================');
     console.log('');
     console.log(`📍 URL: http://localhost:${PORT}`);
     console.log(`📡 Endpoint tweets: http://localhost:${PORT}/api/tweets`);
+    console.log(`📺 Endpoint YouTube: http://localhost:${PORT}/api/youtube/videos`);
     console.log(`💚 Health check: http://localhost:${PORT}/api/health`);
     console.log('');
     
+    // Verificar configuración de X/Twitter
     if (validateConfig()) {
-        console.log('✅ Configuración válida');
-        console.log(`📊 User ID: ${process.env.TWITTER_USER_ID}`);
-        console.log(`💾 Cache TTL: ${CACHE_TTL_MINUTES} minutos`);
-        console.log(`📁 Cache persistente en: ${CACHE_FILE_PATH}`);
+        console.log('✅ X/Twitter configurado');
+        console.log(`   📊 User ID: ${process.env.TWITTER_USER_ID}`);
+        console.log(`   💾 Cache TTL: ${CACHE_TTL_MINUTES} minutos`);
     } else {
-        console.log('⚠️  ADVERTENCIA: Configuración incompleta');
-        console.log('📝 Configura server/.env antes de usar el servidor');
+        console.log('⚠️  X/Twitter no configurado');
     }
     
-    // Intentar cargar caché persistente
-    console.log('');
-    console.log('🔍 Verificando caché persistente...');
-    if (loadCacheFromFile()) {
-        console.log('✅ Caché cargado exitosamente desde archivo');
+    // Verificar configuración de YouTube
+    const youtubeConfigured = process.env.YOUTUBE_API_KEY && 
+                              process.env.YOUTUBE_API_KEY !== 'TU_API_KEY_AQUI' && 
+                              process.env.YOUTUBE_CHANNEL_ID && 
+                              process.env.YOUTUBE_CHANNEL_ID !== 'TU_CHANNEL_ID_AQUI';
+    
+    if (youtubeConfigured) {
+        console.log('✅ YouTube configurado');
+        console.log(`   📺 Channel ID: ${process.env.YOUTUBE_CHANNEL_ID}`);
+        console.log(`   💾 Cache TTL: ${YOUTUBE_CACHE_TTL_MINUTES} minutos`);
     } else {
-        console.log('ℹ️  No hay caché previo o está expirado');
+        console.log('⚠️  YouTube no configurado (opcional)');
+        console.log('   📝 Sigue las instrucciones en YOUTUBE_API_SETUP.md');
     }
     
     console.log('');
-    console.log('💡 El servidor usa cache persistente para reducir peticiones a la API');
-    console.log('💡 Si recibes error 429, el servidor usará datos en cache');
-    console.log('⚠️  TIER FREE: Solo 1 request cada 15 minutos - usa caché sabiamente');
+    console.log(`📁 Caché persistente en: ${path.join(__dirname, '.cache')}`);
+    
+    // Intentar cargar cachés persistentes
+    console.log('');
+    console.log('🔍 Verificando cachés persistentes...');
+    
+    const twitterCacheLoaded = loadCacheFromFile();
+    if (twitterCacheLoaded) {
+        console.log('✅ Caché de X/Twitter cargado exitosamente');
+    } else {
+        console.log('ℹ️  No hay caché previo de X/Twitter');
+    }
+    
+    const youtubeCacheLoaded = loadYoutubeCacheFromFile();
+    if (youtubeCacheLoaded) {
+        console.log('✅ Caché de YouTube cargado exitosamente');
+    } else {
+        console.log('ℹ️  No hay caché previo de YouTube');
+    }
+    
+    console.log('');
+    console.log('💡 El servidor usa caché persistente para reducir peticiones a las APIs');
+    console.log('💡 Si recibes errores de rate limit, el servidor usará datos en caché');
+    console.log('');
+    console.log('📊 Límites de APIs:');
+    console.log('   X/Twitter: 1 request / 15 minutos (tier FREE)');
+    console.log('   YouTube: 100 unidades por búsqueda, 10,000/día');
     console.log('');
     console.log('Presiona Ctrl+C para detener el servidor');
     console.log('========================================');
