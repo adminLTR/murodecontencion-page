@@ -32,6 +32,18 @@ const MuroDeContencion = {
             console.error('❌ X_API_CONFIG no está definido');
             this.showTwitterConfigMessage();
         }
+        
+        // Cargar videos de YouTube
+        if (typeof YOUTUBE_API_CONFIG !== 'undefined') {
+            if (YOUTUBE_API_CONFIG.useProxy) {
+                console.log('✅ Usando backend proxy para obtener videos de YouTube');
+                this.fetchYouTubeVideos();
+            } else {
+                console.warn('⚠️ Backend proxy desactivado para YouTube');
+            }
+        } else {
+            console.log('ℹ️ YOUTUBE_API_CONFIG no está definido (opcional)');
+        }
     },
 
     // Observador de intersección para animaciones al hacer scroll
@@ -108,6 +120,10 @@ const MuroDeContencion = {
     // LocalStorage keys
     STORAGE_KEY: 'murodecontencion_tweets',
     STORAGE_TIMESTAMP_KEY: 'murodecontencion_tweets_timestamp',
+    
+    // LocalStorage keys para YouTube
+    YOUTUBE_STORAGE_KEY: 'murodecontencion_youtube',
+    YOUTUBE_STORAGE_TIMESTAMP_KEY: 'murodecontencion_youtube_timestamp',
 
     // Guardar tweets en LocalStorage
     saveTweetsToStorage(data) {
@@ -433,6 +449,189 @@ const MuroDeContencion = {
             <article class="video-card">
                 <!-- Contenido del video -->
             </article>
+        `;
+    },
+
+    // ============================================
+    // Funciones para API de YouTube
+    // ============================================
+    
+    // Guardar videos de YouTube en LocalStorage
+    saveYouTubeToStorage(data) {
+        try {
+            localStorage.setItem(this.YOUTUBE_STORAGE_KEY, JSON.stringify(data));
+            localStorage.setItem(this.YOUTUBE_STORAGE_TIMESTAMP_KEY, Date.now().toString());
+            console.log('💾 Videos de YouTube guardados en LocalStorage');
+        } catch (error) {
+            console.warn('⚠️ No se pudo guardar YouTube en LocalStorage:', error);
+        }
+    },
+
+    // Obtener videos de YouTube desde LocalStorage
+    getYouTubeFromStorage() {
+        try {
+            const data = localStorage.getItem(this.YOUTUBE_STORAGE_KEY);
+            const timestamp = localStorage.getItem(this.YOUTUBE_STORAGE_TIMESTAMP_KEY);
+            
+            if (data && timestamp) {
+                const savedTime = new Date(parseInt(timestamp));
+                console.log(`📦 Videos de YouTube encontrados en LocalStorage (guardados: ${savedTime.toLocaleString()})`);
+                return JSON.parse(data);
+            }
+            return null;
+        } catch (error) {
+            console.warn('⚠️ Error al leer YouTube desde LocalStorage:', error);
+            return null;
+        }
+    },
+
+    // Limpiar videos de YouTube de LocalStorage
+    clearYouTubeFromStorage() {
+        try {
+            localStorage.removeItem(this.YOUTUBE_STORAGE_KEY);
+            localStorage.removeItem(this.YOUTUBE_STORAGE_TIMESTAMP_KEY);
+            console.log('🗑️ LocalStorage de YouTube limpiado');
+        } catch (error) {
+            console.warn('⚠️ Error al limpiar YouTube de LocalStorage:', error);
+        }
+    },
+
+    async fetchYouTubeVideos() {
+        console.log('📺 Cargando videos de YouTube...');
+        
+        try {
+            const params = new URLSearchParams({
+                'max_results': YOUTUBE_API_CONFIG.maxResults
+            });
+            
+            const url = `${YOUTUBE_API_CONFIG.proxyBaseUrl}/api/youtube/videos?${params}`;
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            
+            // Verificar si hay datos
+            if (!data.items || data.items.length === 0) {
+                console.warn('⚠️ No se encontraron videos en la API');
+                
+                // Intentar cargar desde LocalStorage
+                const cachedData = this.getYouTubeFromStorage();
+                if (cachedData) {
+                    console.log('📦 Mostrando videos desde LocalStorage');
+                    this.renderYouTubeVideos(cachedData, true);
+                    return;
+                }
+                
+                // Si no hay nada en LocalStorage, mostrar mensaje
+                this.showNoYouTubeMessage();
+                return;
+            }
+
+            // Guardar en LocalStorage
+            this.saveYouTubeToStorage(data);
+
+            // Renderizar videos
+            this.renderYouTubeVideos(data, false);
+            console.log('✅ Videos de YouTube cargados exitosamente desde la API');
+
+        } catch (error) {
+            console.error('❌ Error al cargar videos de YouTube:', error);
+            
+            // Intentar cargar desde LocalStorage como fallback
+            const cachedData = this.getYouTubeFromStorage();
+            if (cachedData) {
+                console.log('📦 API falló. Mostrando videos desde LocalStorage');
+                this.renderYouTubeVideos(cachedData, true);
+            } else {
+                // No hay datos en LocalStorage, mostrar mensaje
+                console.log('❌ No hay videos en LocalStorage');
+                this.showNoYouTubeMessage();
+            }
+        }
+    },
+
+    renderYouTubeVideos(apiData, fromStorage = false) {
+        const container = document.querySelector('.video-feed .feed-content');
+        if (!container) return;
+
+        // Generar HTML para cada video
+        const videosHTML = apiData.items.map(video => {
+            return this.createYouTubeVideoCard(video);
+        }).join('');
+
+        // Agregar badge si viene de LocalStorage
+        let storageNotice = '';
+        if (fromStorage) {
+            const timestamp = localStorage.getItem(this.YOUTUBE_STORAGE_TIMESTAMP_KEY);
+            const savedDate = timestamp ? new Date(parseInt(timestamp)) : new Date();
+            storageNotice = `
+                <div class="storage-notice">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Mostrando videos guardados (última actualización: ${this.formatDate(savedDate.toISOString())})</span>
+                </div>
+            `;
+        }
+
+        // Actualizar contenedor con animación
+        container.style.opacity = '0';
+        setTimeout(() => {
+            container.innerHTML = storageNotice + videosHTML;
+            container.style.opacity = '1';
+        }, 200);
+    },
+
+    createYouTubeVideoCard(video) {
+        const videoId = video.id.videoId;
+        const title = video.snippet.title;
+        const thumbnail = video.snippet.thumbnails.medium.url;
+        const channelTitle = video.snippet.channelTitle;
+        const publishedAt = this.formatDate(video.snippet.publishedAt);
+        
+        return `
+            <article class="video-card youtube-video" data-video-id="${videoId}">
+                <div class="video-embed-container">
+                    <iframe
+                        width="100%"
+                        height="100%"
+                        src="https://www.youtube.com/embed/${videoId}"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen
+                        loading="lazy"
+                        title="${title}">
+                    </iframe>
+                </div>
+                <div class="video-info">
+                    <h3 class="video-title">${title}</h3>
+                    <p class="video-meta">
+                        <span><i class="far fa-clock"></i> ${publishedAt}</span>
+                    </p>
+                    <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener" class="video-link">
+                        Ver en YouTube <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+            </article>
+        `;
+    },
+
+    showNoYouTubeMessage() {
+        const container = document.querySelector('.video-feed .feed-content');
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="api-message no-content">
+                <i class="fas fa-video-slash"></i>
+                <h3>No hay videos para mostrar</h3>
+            </div>
         `;
     },
 

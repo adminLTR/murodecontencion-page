@@ -33,6 +33,15 @@ const X_API_CONFIG = {
     maxResults: 5, // Número de posts a obtener (5-100, mínimo 5 requerido por la API de X)
 };
 
+// Configuración de YouTube API
+const YOUTUBE_API_CONFIG = {
+    useProxy: true, // Usar backend proxy (obligatorio para YouTube)
+    proxyBaseUrl: 'http://localhost:3000', // URL del servidor proxy
+    
+    // Configuración de requests
+    maxResults: 3, // Número de videos a obtener (máximo 50)
+};
+
 // Exportar configuración
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = X_API_CONFIG;
