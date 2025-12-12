@@ -75,22 +75,8 @@ const MuroDeContencion = {
 
     // Header con efecto al hacer scroll
     setupHeaderScroll() {
-        let lastScroll = 0;
-        const header = document.querySelector('.header');
-
-        window.addEventListener('scroll', () => {
-            const currentScroll = window.pageYOffset;
-
-            if (currentScroll > 100) {
-                header.style.padding = '1rem 0';
-                header.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.2)';
-            } else {
-                header.style.padding = '2rem 0';
-                header.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.12)';
-            }
-
-            lastScroll = currentScroll;
-        });
+        // Header mantiene su tamaño fijo, sin cambios al hacer scroll
+        // Solo se mantiene el efecto sticky del CSS
     },
 
     // Lazy loading para imágenes (cuando se agreguen)
