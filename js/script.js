@@ -598,17 +598,11 @@ const MuroDeContencion = {
         
         return `
             <article class="video-card youtube-video" data-video-id="${videoId}">
-                <div class="video-embed-container">
-                    <iframe
-                        width="100%"
-                        height="100%"
-                        src="https://www.youtube.com/embed/${videoId}"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen
-                        loading="lazy"
-                        title="${title}">
-                    </iframe>
+                <div class="video-thumbnail-wrapper">
+                    <img src="${thumbnail}" alt="${title}" class="video-thumbnail-img" loading="lazy">
+                    <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener" class="play-overlay">
+                        <i class="fas fa-play-circle"></i>
+                    </a>
                 </div>
                 <div class="video-info">
                     <h3 class="video-title">${title}</h3>
@@ -616,7 +610,7 @@ const MuroDeContencion = {
                         <span><i class="far fa-clock"></i> ${publishedAt}</span>
                     </p>
                     <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener" class="video-link">
-                        Ver en YouTube <i class="fas fa-external-link-alt"></i>
+                        <i class="fab fa-youtube"></i> Ver en YouTube
                     </a>
                 </div>
             </article>
