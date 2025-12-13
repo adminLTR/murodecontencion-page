@@ -42,6 +42,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
 }
 
 html {
@@ -50,7 +51,7 @@ html {
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     line-height: 1.6;
     color: var(--dark-gray);
     background-color: var(--light-cream);
