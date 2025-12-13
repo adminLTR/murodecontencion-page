@@ -249,7 +249,6 @@ const MuroDeContencion = {
             if (cachedData) {
                 console.log('📦 API falló. Mostrando tweets desde LocalStorage');
                 this.renderTwitterPosts(cachedData, true);
-                this.showStorageWarning();
             } else {
                 // No hay datos en LocalStorage, mostrar mensaje
                 console.log('❌ No hay tweets en LocalStorage');
@@ -272,23 +271,10 @@ const MuroDeContencion = {
             return this.createPostCard(post, author);
         }).join('');
 
-        // Agregar badge si viene de LocalStorage
-        let storageNotice = '';
-        if (fromStorage) {
-            const timestamp = localStorage.getItem(this.STORAGE_TIMESTAMP_KEY);
-            const savedDate = timestamp ? new Date(parseInt(timestamp)) : new Date();
-            storageNotice = `
-                <div class="storage-notice">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Mostrando tweets guardados (última actualización: ${this.formatDate(savedDate.toISOString())})</span>
-                </div>
-            `;
-        }
-
         // Actualizar contenedor con animación
         container.style.opacity = '0';
         setTimeout(() => {
-            container.innerHTML = storageNotice + postsHTML;
+            container.innerHTML = postsHTML;
             container.style.opacity = '1';
         }, 200);
     },
@@ -369,19 +355,7 @@ const MuroDeContencion = {
         `;
     },
 
-    showStorageWarning() {
-        const container = document.querySelector('.twitter-feed .feed-content');
-        if (!container) return;
 
-        // Agregar un pequeño banner al inicio del contenedor
-        const warning = document.createElement('div');
-        warning.className = 'storage-warning';
-        warning.innerHTML = `
-            <i class="fas fa-exclamation-triangle"></i>
-            <span>La API no está disponible. Mostrando tweets guardados anteriormente.</span>
-        `;
-        container.insertBefore(warning, container.firstChild);
-    },
 
     showTwitterMessage(message) {
         const container = document.querySelector('.twitter-feed .feed-content');
@@ -568,23 +542,10 @@ const MuroDeContencion = {
             return this.createYouTubeVideoCard(video);
         }).join('');
 
-        // Agregar badge si viene de LocalStorage
-        let storageNotice = '';
-        if (fromStorage) {
-            const timestamp = localStorage.getItem(this.YOUTUBE_STORAGE_TIMESTAMP_KEY);
-            const savedDate = timestamp ? new Date(parseInt(timestamp)) : new Date();
-            storageNotice = `
-                <div class="storage-notice">
-                    <i class="fas fa-info-circle"></i>
-                    <span>Mostrando videos guardados (última actualización: ${this.formatDate(savedDate.toISOString())})</span>
-                </div>
-            `;
-        }
-
         // Actualizar contenedor con animación
         container.style.opacity = '0';
         setTimeout(() => {
-            container.innerHTML = storageNotice + videosHTML;
+            container.innerHTML = videosHTML;
             container.style.opacity = '1';
         }, 200);
     },
