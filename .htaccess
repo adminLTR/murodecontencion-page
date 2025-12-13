@@ -1,0 +1,88 @@
+# Apache Configuration for Muro de Contención
+
+# Habilitar RewriteEngine
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+    
+    # Redirigir www a no-www (opcional, ajustar según preferencia)
+    # RewriteCond %{HTTP_HOST} ^www\.(.*)$ [NC]
+    # RewriteRule ^(.*)$ http://%1/$1 [R=301,L]
+    
+    # Redirigir a HTTPS en producción (descomentar cuando tengas SSL)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    
+    # Reescribir URLs limpias para API
+    # /api/tweets -> /api/tweets.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^api/tweets$ /api/tweets.php [L,QSA]
+    
+    # /api/youtube/videos -> /api/youtube.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^api/youtube/videos$ /api/youtube.php [L,QSA]
+    
+    # Página principal: si se solicita / mostrar index.php
+    DirectoryIndex index.php index.html
+</IfModule>
+
+# Headers de seguridad
+<IfModule mod_headers.c>
+    # CORS Headers (ya se manejan en PHP, pero por si acaso)
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+    
+    # Headers de seguridad adicionales
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    
+    # Cache para archivos estáticos
+    <FilesMatch "\.(ico|jpg|jpeg|png|gif|svg|webp|css|js|woff|woff2|ttf|eot)$">
+        Header set Cache-Control "max-age=2592000, public"
+    </FilesMatch>
+    
+    # No cachear APIs
+    <FilesMatch "\.(php)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>
+
+# Proteger archivos sensibles
+<FilesMatch "^\.env$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "^(config\.php|Cache\.php)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Deshabilitar listado de directorios
+Options -Indexes
+
+# Habilitar compresión gzip
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# Configuración de PHP (si es posible modificar)
+<IfModule mod_php.c>
+    php_value max_execution_time 60
+    php_value memory_limit 128M
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+    php_flag display_errors Off
+    php_flag log_errors On
+</IfModule>
+
+# Páginas de error personalizadas (opcional)
+# ErrorDocument 404 /404.php
+# ErrorDocument 500 /500.php

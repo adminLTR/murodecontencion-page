@@ -1,6 +1,7 @@
 # Credenciales y configuración sensible
-server/.env
-# NOTA: server/.env.example SÍ debe estar en git como referencia
+.env
+.env.local
+.env.*.local
 
 # Archivos del sistema operativo
 .DS_Store
@@ -14,23 +15,8 @@ desktop.ini
 *.swo
 *~
 
-# Dependencias (si usas Node.js más adelante)
-node_modules/
-package-lock.json
-yarn.lock
-
 # Logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Archivos de entorno
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 # Build y distribución
 dist/
@@ -39,6 +25,13 @@ build/
 # Archivos temporales
 *.tmp
 *.temp
+tmp/
+temp/
 
-# Caché del servidor
-server/.cache/
+# Caché
+cache/
+*.cache
+
+# Composer (si se usa en el futuro)
+vendor/
+composer.lock

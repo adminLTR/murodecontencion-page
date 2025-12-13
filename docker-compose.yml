@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: murodecontencion-php
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - ./cache:/var/www/html/cache
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - murodecontencion-network
+
+networks:
+  murodecontencion-network:
+    driver: bridge

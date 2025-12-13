@@ -25,9 +25,9 @@
  */
 
 const X_API_CONFIG = {
-    // Configuración simplificada - las credenciales están en server/.env
-    useProxy: true, // Usar backend proxy (recomendado)
-    proxyBaseUrl: 'http://localhost:3000', // URL del servidor proxy
+    // Configuración simplificada - las credenciales están en .env
+    useProxy: true, // Usar endpoints PHP (recomendado)
+    proxyBaseUrl: window.location.origin, // URL del mismo servidor (PHP monolito)
     
     // Configuración de requests
     maxResults: 5, // Número de posts a obtener (5-100, mínimo 5 requerido por la API de X)
@@ -35,8 +35,8 @@ const X_API_CONFIG = {
 
 // Configuración de YouTube API
 const YOUTUBE_API_CONFIG = {
-    useProxy: true, // Usar backend proxy (obligatorio para YouTube)
-    proxyBaseUrl: 'http://localhost:3000', // URL del servidor proxy
+    useProxy: true, // Usar endpoints PHP (obligatorio para YouTube)
+    proxyBaseUrl: window.location.origin, // URL del mismo servidor (PHP monolito)
     
     // Configuración de requests
     maxResults: 3, // Número de videos a obtener (máximo 50)
