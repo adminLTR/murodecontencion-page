@@ -12,116 +12,42 @@
     <!-- Header -->
     <header class="header">
         <div class="container header-content">
-            <div class="logo-section">
-                <img src="img/logo.jpeg" alt="Muro de Contención Logo" class="logo-img">
-                <h1 class="site-title">Muro de Contención</h1>
-            </div>
-            
-            <nav class="main-nav">
-                <a href="#redes" class="nav-link">Redes</a>
-                <a href="#contenido" class="nav-link">Contenido</a>
-                <a href="#nosotros" class="nav-link">Nosotros</a>
-                <a href="#contacto" class="nav-link">Contacto</a>
-            </nav>
+            <h1 class="site-title">Muro de Contención</h1>
         </div>
     </header>
 
     <!-- Main Content -->
     <main>
-        <!-- Social Links Section (Linktree Style) -->
+        <!-- Social Links Section -->
         <section id="redes" class="social-links-section">
             <div class="container">
-                <div class="social-links-container">
-                    <div class="social-links-header">
-                        <h2>Síguenos en Nuestras Redes</h2>
-                        <p>Conéctate con nosotros en todas las plataformas</p>
-                    </div>
-                    <div class="social-links-grid">
-                        <a href="#" class="social-link-card facebook" aria-label="Facebook">
-                            <div class="social-icon-wrapper">
-                                <i class="fab fa-facebook-f"></i>
-                            </div>
-                            <div class="social-info">
-                                <h3>Facebook</h3>
-                                <p>Síguenos</p>
-                            </div>
-                            <i class="fas fa-arrow-right arrow-icon"></i>
-                        </a>
-                        
-                        <a href="#" class="social-link-card instagram" aria-label="Instagram">
-                            <div class="social-icon-wrapper">
-                                <i class="fab fa-instagram"></i>
-                            </div>
-                            <div class="social-info">
-                                <h3>Instagram</h3>
-                                <p>Fotos y Stories</p>
-                            </div>
-                            <i class="fas fa-arrow-right arrow-icon"></i>
-                        </a>
-                        
-                        <a href="#" class="social-link-card twitter" aria-label="X (Twitter)">
-                            <div class="social-icon-wrapper">
-                                <i class="fab fa-x-twitter"></i>
-                            </div>
-                            <div class="social-info">
-                                <h3>X (Twitter)</h3>
-                                <p>Últimas noticias</p>
-                            </div>
-                            <i class="fas fa-arrow-right arrow-icon"></i>
-                        </a>
-                        
-                        <a href="#" class="social-link-card dailymotion" aria-label="Dailymotion">
-                            <div class="social-icon-wrapper">
-                                <i class="fas fa-video"></i>
-                            </div>
-                            <div class="social-info">
-                                <h3>Dailymotion</h3>
-                                <p>Videos completos</p>
-                            </div>
-                            <i class="fas fa-arrow-right arrow-icon"></i>
-                        </a>
-                        
-                        <a href="#" class="social-link-card tiktok" aria-label="TikTok">
-                            <div class="social-icon-wrapper">
-                                <i class="fab fa-tiktok"></i>
-                            </div>
-                            <div class="social-info">
-                                <h3>TikTok</h3>
-                                <p>Videos cortos</p>
-                            </div>
-                            <i class="fas fa-arrow-right arrow-icon"></i>
-                        </a>
-                        
-                        <a href="#" class="social-link-card telegram" aria-label="Telegram">
-                            <div class="social-icon-wrapper">
-                                <i class="fab fa-telegram"></i>
-                            </div>
-                            <div class="social-info">
-                                <h3>Telegram</h3>
-                                <p>Únete al grupo</p>
-                            </div>
-                            <i class="fas fa-arrow-right arrow-icon"></i>
-                        </a>
-                        
-                        <a href="#" class="social-link-card whatsapp" aria-label="WhatsApp">
-                            <div class="social-icon-wrapper">
-                                <i class="fab fa-whatsapp"></i>
-                            </div>
-                            <div class="social-info">
-                                <h3>WhatsApp</h3>
-                                <p>Canal oficial</p>
-                            </div>
-                            <i class="fas fa-arrow-right arrow-icon"></i>
-                        </a>
-                    </div>
+                <div class="social-icons-row">
+                    <a href="#" class="social-circle-icon facebook" aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    
+                    <a href="#" class="social-circle-icon instagram" aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    
+                    <a href="#" class="social-circle-icon twitter" aria-label="X (Twitter)">
+                        <i class="fab fa-x-twitter"></i>
+                    </a>
+                    
+                    <a href="#" class="social-circle-icon youtube" aria-label="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    
+                    <a href="#" class="social-circle-icon tiktok" aria-label="TikTok">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
                 </div>
             </div>
         </section>
 
         <!-- Social Feed Section -->
         <section id="contenido" class="social-feed-section">
-            <div class="container">
-                <div class="feed-grid">
+            <div class="feed-grid">
                     <!-- Twitter Feed Column -->
                     <div class="feed-column twitter-feed">
                         <div class="feed-header">
@@ -229,7 +155,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
         </section>
 
         <!-- About Section -->
@@ -260,13 +185,11 @@
             <div class="container">
                 <h2 class="section-title">Contáctanos</h2>
                 <div class="contact-buttons">
-                    <a href="#" class="contact-btn telegram-btn">
+                    <a href="#" class="contact-icon telegram-btn" aria-label="Telegram">
                         <i class="fab fa-telegram"></i>
-                        <span>Únete a Telegram</span>
                     </a>
-                    <a href="#" class="contact-btn whatsapp-btn">
+                    <a href="#" class="contact-icon whatsapp-btn" aria-label="WhatsApp">
                         <i class="fab fa-whatsapp"></i>
-                        <span>Canal de WhatsApp</span>
                     </a>
                 </div>
             </div>
@@ -277,20 +200,8 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-brand">
-                    <h3>Muro de Contención</h3>
-                    <p>Construyendo conversaciones que importan</p>
-                </div>
-                <div class="footer-social">
-                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-                    <a href="#" aria-label="X"><i class="fab fa-x-twitter"></i></a>
-                    <a href="#" aria-label="Dailymotion"><i class="fas fa-video"></i></a>
-                    <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2025 Muro de Contención. Todos los derechos reservados.</p>
+                <p>Muro de contención - 2025</p>
+                <p>Lima - Perú</p>
             </div>
         </div>
     </footer>
