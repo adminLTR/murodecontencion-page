@@ -13,6 +13,9 @@
     <header class="header">
         <div class="container header-content">
             <h1 class="site-title">Muro de Contención</h1>
+            <a href="mailto:email@murodecontencion.es" class="header-email" aria-label="Enviar correo">
+                <i class="fas fa-envelope"></i>
+            </a>
         </div>
     </header>
 
@@ -22,24 +25,24 @@
         <section id="redes" class="social-links-section">
             <div class="container">
                 <div class="social-icons-row">
-                    <a href="https://www.facebook.com/share/1DHBhKjKaR/?mibextid=wwXIfr" class="social-circle-icon facebook" aria-label="Facebook">
-                        <i class="fab fa-facebook-f"></i>
-                    </a>
-                    
                     <a href="https://www.instagram.com/murodces?igsh=c3o0cGZlMHBjYmx5&utm_source=qr" class="social-circle-icon instagram" aria-label="Instagram">
                         <i class="fab fa-instagram"></i>
+                    </a>
+                    
+                    <a href="https://www.facebook.com/share/1DHBhKjKaR/?mibextid=wwXIfr" class="social-circle-icon facebook" aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
                     </a>
                     
                     <a href="https://x.com/murodces?s=11" class="social-circle-icon twitter" aria-label="X (Twitter)">
                         <i class="fab fa-x-twitter"></i>
                     </a>
                     
-                    <a href="https://www.youtube.com/channel/UCj7joHDcCGXC9EQssq0ntEQ" class="social-circle-icon youtube" aria-label="YouTube">
-                        <i class="fab fa-youtube"></i>
-                    </a>
-                    
                     <a href="#" class="social-circle-icon tiktok" aria-label="TikTok">
                         <i class="fab fa-tiktok"></i>
+                    </a>
+                    
+                    <a href="https://www.youtube.com/channel/UCj7joHDcCGXC9EQssq0ntEQ" class="social-circle-icon youtube" aria-label="YouTube">
+                        <i class="fab fa-youtube"></i>
                     </a>
                 </div>
             </div>
@@ -104,6 +107,12 @@
                                 </div>
                             </article>
                         </div>
+                        <div class="feed-view-more">
+                            <a href="https://x.com/murodces" target="_blank" rel="noopener">
+                                <span>Ver más en X</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
 
                     <!-- Dailymotion Feed Column -->
@@ -150,6 +159,12 @@
                                 </div>
                             </article>
                         </div>
+                        <div class="feed-view-more">
+                            <a href="https://www.youtube.com/channel/UCj7joHDcCGXC9EQssq0ntEQ" target="_blank" rel="noopener">
+                                <span>Ver más en YouTube</span>
+                                <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
         </section>
@@ -158,24 +173,26 @@
         <section id="nosotros" class="about-section">
             <div class="container">
                 <div class="about-content">
-                    <h2 class="section-title">Quiénes Somos</h2>
+                    <h2 class="section-title">SOBRE NOSOTROS</h2>
                     <div class="about-text">
                         <p>
-                            <strong>Muro de Contención</strong> es un blog de opinión política nacional e internacional, y una agencia de noticias independiente con sede en Lima, Perú. Analizamos la coyuntura política, social y económica del Perú y el mundo, ofreciendo perspectivas críticas y pluralidad de voces.
+                            <strong>Muro de Contención</strong> es un blog de opinión política nacional e internacional, y una agencia de noticias independiente con sede en Lima, Perú. Analizamos la coyuntura política, social y económica del Perú y de ámbito internacional, ofreciendo perspectivas críticas y pluralidad de voces.
                         </p>
                         <p>
-                            Nuestro equipo está conformado por periodistas, analistas y colaboradores comprometidos con la verdad, la democracia y la libertad de expresión. Publicamos reportajes, columnas de opinión, entrevistas y análisis en profundidad sobre los temas más relevantes de la agenda pública.
+                            Nuestra misión es promover y estar comprometidos con la verdad, la democracia y la libertad de expresión.
                         </p>
                         <p>
                             Desde Lima, conectamos a nuestra audiencia con la actualidad nacional e internacional, promoviendo el debate informado y el pensamiento crítico. Somos un espacio abierto para la reflexión, la denuncia y la construcción de ciudadanía.
-                        </p>
-                        <p>
-                            Únete a nuestra comunidad y sé parte de la conversación política que mueve al Perú y al mundo.
                         </p>
                     </div>
                 </div>
             </div>
         </section>
+
+        <!-- Separador -->
+        <div class="container">
+            <div class="section-divider"></div>
+        </div>
 
         <!-- Contact Section -->
         <section id="contacto" class="contact-section">

@@ -122,6 +122,21 @@ body {
     justify-content: center;
     align-items: center;
     padding: 0.5rem 0;
+    position: relative;
+}
+
+.header-email {
+    position: absolute;
+    right: 0;
+    color: var(--dark-gray);
+    font-size: 1.2rem;
+    transition: transform 0.2s ease, color 0.2s ease;
+    text-decoration: none;
+}
+
+.header-email:hover {
+    transform: scale(1.1);
+    color: var(--medium-gray);
 }
 
 .site-title {
@@ -136,7 +151,7 @@ body {
    Social Links Section (Linktree Style)
    ============================================ */
 .social-links-section {
-    padding: var(--spacing-lg) 0;
+    padding: var(--spacing-xs) 0;
     position: relative;
     overflow: hidden;
 }
@@ -181,7 +196,7 @@ body {
    Social Feed Section
    ============================================ */
 .social-feed-section {
-    padding: var(--spacing-xl) 0;
+    padding: var(--spacing-xs) 0 var(--spacing-sm) 0;
     position: relative;
     overflow: hidden;
 }
@@ -196,7 +211,6 @@ body {
     margin: 0 auto;
     padding: var(--spacing-md);
     box-sizing: border-box;
-    background-color: var(--light-cream);
 }
 
 @keyframes fadeInUp {
@@ -593,7 +607,7 @@ body {
    About Section
    ============================================ */
 .about-section {
-    padding: var(--spacing-xl) 0;
+    padding: var(--spacing-xs) 0;
     position: relative;
     overflow: hidden;
 }
@@ -614,7 +628,6 @@ body {
     margin: 0 auto;
     text-align: center;
     padding: var(--spacing-md);
-    background-color: var(--light-cream);
 }
 
 .section-title {
@@ -656,8 +669,50 @@ body {
 /* ============================================
    Contact Section
    ============================================ */
+/* Botón ver más para feeds */
+.feed-view-more {
+    display: block;
+    text-align: center;
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--stabilitx);
+}
+
+.feed-view-more a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--dark-gray);
+    color: var(--white);
+    text-decoration: none;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 8px rgba(38, 38, 38, 0.2);
+}
+
+.feed-view-more a:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(38, 38, 38, 0.3);
+}
+
+.feed-view-more a i {
+    font-size: 1rem;
+}
+
+/* Separador entre secciones */
+.section-divider {
+    width: 70px;
+    height: 4px;
+    background: var(--dark-gray);
+    border-radius: 2px;
+    margin: var(--spacing-sm) auto;
+}
+
 .contact-section {
-    padding: var(--spacing-md) 0;
+    padding: var(--spacing-xs) 0;
     text-align: center;
     position: relative;
     overflow: hidden;
