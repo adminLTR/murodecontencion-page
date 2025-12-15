@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Muro de Contención - Blog</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/styles.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="js/config.js"></script>
 </head>
@@ -55,20 +55,20 @@
                             <h2>Últimos Posts de X</h2>
                         </div>
                         <div class="feed-content" id="twitter-feed-content">
-                            <!-- Placeholder posts -->
+                            <!-- Los últimos tweets aparecerán aquí automáticamente -->
                             <article class="post-card">
                                 <div class="post-header">
                                     <div class="post-avatar"></div>
                                     <div class="post-meta">
                                         <h3>@murodecontencion</h3>
-                                        <span class="post-time">Hace 2 horas</span>
+                                        <span class="post-time">Hace unos momentos</span>
                                     </div>
                                 </div>
-                                <p class="post-text">Este es un ejemplo de un post de X. El contenido real se cargará mediante la API.</p>
+                                <p class="post-text">🔄 Cargando los últimos posts de nuestra cuenta de X... Mantente conectado para las últimas noticias y análisis político.</p>
                                 <div class="post-actions">
-                                    <span><i class="far fa-heart"></i> 24</span>
-                                    <span><i class="far fa-comment"></i> 5</span>
-                                    <span><i class="fas fa-retweet"></i> 8</span>
+                                    <span><i class="far fa-heart"></i> --</span>
+                                    <span><i class="far fa-comment"></i> --</span>
+                                    <span><i class="fas fa-retweet"></i> --</span>
                                 </div>
                             </article>
 
@@ -77,14 +77,14 @@
                                     <div class="post-avatar"></div>
                                     <div class="post-meta">
                                         <h3>@murodecontencion</h3>
-                                        <span class="post-time">Hace 5 horas</span>
+                                        <span class="post-time">Actualizando...</span>
                                     </div>
                                 </div>
-                                <p class="post-text">Otro ejemplo de post. Pronto aquí verás contenido real de nuestra cuenta de X.</p>
+                                <p class="post-text">💭 Aquí podrás leer nuestras opiniones sobre la coyuntura política nacional e internacional en tiempo real.</p>
                                 <div class="post-actions">
-                                    <span><i class="far fa-heart"></i> 42</span>
-                                    <span><i class="far fa-comment"></i> 12</span>
-                                    <span><i class="fas fa-retweet"></i> 15</span>
+                                    <span><i class="far fa-heart"></i> --</span>
+                                    <span><i class="far fa-comment"></i> --</span>
+                                    <span><i class="fas fa-retweet"></i> --</span>
                                 </div>
                             </article>
 
@@ -93,14 +93,14 @@
                                     <div class="post-avatar"></div>
                                     <div class="post-meta">
                                         <h3>@murodecontencion</h3>
-                                        <span class="post-time">Hace 1 día</span>
+                                        <span class="post-time">Próximamente</span>
                                     </div>
                                 </div>
-                                <p class="post-text">Tercer post de ejemplo con contenido placeholder.</p>
+                                <p class="post-text">📰 Síguenos en X para estar al día con nuestros reportajes, columnas de opinión y análisis en profundidad.</p>
                                 <div class="post-actions">
-                                    <span><i class="far fa-heart"></i> 38</span>
-                                    <span><i class="far fa-comment"></i> 7</span>
-                                    <span><i class="fas fa-retweet"></i> 10</span>
+                                    <span><i class="far fa-heart"></i> --</span>
+                                    <span><i class="far fa-comment"></i> --</span>
+                                    <span><i class="fas fa-retweet"></i> --</span>
                                 </div>
                             </article>
                         </div>
@@ -113,16 +113,15 @@
                             <h2>Últimos Videos</h2>
                         </div>
                         <div class="feed-content">
-                            <!-- Placeholder videos -->
+                            <!-- Los últimos videos aparecerán aquí automáticamente -->
                             <article class="video-card">
                                 <div class="video-thumbnail">
                                     <i class="fas fa-play-circle"></i>
                                 </div>
                                 <div class="video-info">
-                                    <h3>Título del Video 1</h3>
+                                    <h3>🎥 Cargando últimos videos...</h3>
                                     <p class="video-meta">
-                                        <span><i class="far fa-eye"></i> 1.2K vistas</span>
-                                        <span>Hace 3 días</span>
+                                        <span>Próximamente aquí</span>
                                     </p>
                                 </div>
                             </article>
@@ -132,10 +131,9 @@
                                     <i class="fas fa-play-circle"></i>
                                 </div>
                                 <div class="video-info">
-                                    <h3>Título del Video 2</h3>
+                                    <h3>📺 Reportajes y entrevistas exclusivas</h3>
                                     <p class="video-meta">
-                                        <span><i class="far fa-eye"></i> 850 vistas</span>
-                                        <span>Hace 5 días</span>
+                                        <span>Actualizando contenido...</span>
                                     </p>
                                 </div>
                             </article>
@@ -145,10 +143,9 @@
                                     <i class="fas fa-play-circle"></i>
                                 </div>
                                 <div class="video-info">
-                                    <h3>Título del Video 3</h3>
+                                    <h3>🎬 Análisis político en video</h3>
                                     <p class="video-meta">
-                                        <span><i class="far fa-eye"></i> 2.1K vistas</span>
-                                        <span>Hace 1 semana</span>
+                                        <span>Próximamente disponible</span>
                                     </p>
                                 </div>
                             </article>
@@ -185,12 +182,18 @@
             <div class="container">
                 <h2 class="section-title">Contáctanos</h2>
                 <div class="contact-buttons">
-                    <a href="#" class="contact-icon telegram-btn" aria-label="Telegram">
-                        <i class="fab fa-telegram"></i>
-                    </a>
-                    <a href="#" class="contact-icon whatsapp-btn" aria-label="WhatsApp">
-                        <i class="fab fa-whatsapp"></i>
-                    </a>
+                    <div class="contact-item">
+                        <a href="#" class="contact-icon telegram-btn" aria-label="Telegram">
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                        <span class="contact-label">Canal de telegram</span>
+                    </div>
+                    <div class="contact-item">
+                        <a href="#" class="contact-icon whatsapp-btn" aria-label="WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <span class="contact-label">Canal de whatsapp</span>
+                    </div>
                 </div>
             </div>
         </section>
