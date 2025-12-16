@@ -778,7 +778,8 @@ body {
    Footer
    ============================================ */
 .footer {
-    color: var(--black);
+    color: var(--white);
+    background-color: var(--black);
     padding: 0.8rem 0;
 }
 
@@ -791,7 +792,7 @@ body {
 }
 
 .footer-content p {
-    color: var(--black);
+    color: var(--white);
     font-size: 1rem;
     margin: 0;
 }
