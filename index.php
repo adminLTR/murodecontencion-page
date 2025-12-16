@@ -25,23 +25,23 @@
         <section id="redes" class="social-links-section">
             <div class="container">
                 <div class="social-icons-row">
-                    <a href="https://www.instagram.com/murodces?igsh=c3o0cGZlMHBjYmx5&utm_source=qr" class="social-circle-icon instagram" aria-label="Instagram">
+                    <a targer="_blank" href="https://www.instagram.com/murodces?igsh=c3o0cGZlMHBjYmx5&utm_source=qr" class="social-circle-icon instagram" aria-label="Instagram">
                         <i class="fab fa-instagram"></i>
                     </a>
                     
-                    <a href="https://www.facebook.com/share/1DHBhKjKaR/?mibextid=wwXIfr" class="social-circle-icon facebook" aria-label="Facebook">
+                    <a targer="_blank" href="https://www.facebook.com/share/1DHBhKjKaR/?mibextid=wwXIfr" class="social-circle-icon facebook" aria-label="Facebook">
                         <i class="fab fa-facebook-f"></i>
                     </a>
                     
-                    <a href="https://x.com/murodces?s=11" class="social-circle-icon twitter" aria-label="X (Twitter)">
+                    <a targer="_blank" href="https://x.com/murodces?s=11" class="social-circle-icon twitter" aria-label="X (Twitter)">
                         <i class="fab fa-x-twitter"></i>
                     </a>
                     
-                    <a href="#" class="social-circle-icon tiktok" aria-label="TikTok">
+                    <a targer="_blank" href="#" class="social-circle-icon tiktok" aria-label="TikTok">
                         <i class="fab fa-tiktok"></i>
                     </a>
                     
-                    <a href="https://www.youtube.com/channel/UCj7joHDcCGXC9EQssq0ntEQ" class="social-circle-icon youtube" aria-label="YouTube">
+                    <a targer="_blank" href="https://www.youtube.com/channel/UCj7joHDcCGXC9EQssq0ntEQ" class="social-circle-icon youtube" aria-label="YouTube">
                         <i class="fab fa-youtube"></i>
                     </a>
                 </div>
